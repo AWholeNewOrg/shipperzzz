@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0rc1/jspdf.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+
+<a href="javascript:demoFromHTML()" class="button">Run Code</a>
+<div id="testcase">
+  <h1>
+    We support special element handlers. Register them with jQuery-style.
+  </h1>
+</div>
+
+<script>
+  function demoFromHTML() {
+    var doc = new jsPDF('p', 'in', 'letter');
+
+    var source = $('#testcase').first();
+    var specialElementHandlers = {
+      '#bypassme': function(element, renderer) {
+        return true;
+      }
+    };
+
+    doc.fromHTML(
+        source, // HTML string or DOM elem ref.
+        0.5,    // x coord
+        0.5,    // y coord
+        {
+          'width': 7.5, // max width of content on PDF
+          'elementHandlers': specialElementHandlers
+        });
+
+    doc.output('dataurl');
+  }
+</script>
+</body>
+</html>
