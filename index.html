@@ -2,41 +2,207 @@
 <html>
 <head lang="en">
   <meta charset="UTF-8">
-  <title></title>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jspdf/0.9.0rc1/jspdf.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <title>Fun With Shipping</title>
+  <script data-main="scripts/main" src="bower_components/requirejs/require.js"></script>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.css"/>
+  <style>
+    tr.packerrow {
+      width: 100%;
+      /*display: inline-table;*/
+      height: 60px;
+      vertical-align: bottom;
+      border-bottom-style: solid;
+      border-bottom: thin solid #000000;
+    }
+
+    td.under {
+      border-bottom-style: solid;
+      border-bottom: thin solid #000000;
+    }
+
+    div.under {
+      border-bottom: solid #000000;
+    }
+
+    table.packertable {
+      width: 100%;
+    }
+
+    html {
+      position: relative;
+      min-height: 100%;
+    }
+
+    body {
+      /* Margin bottom by footer height */
+      margin-bottom: 25%;
+    }
+
+    #footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      /* Set the fixed height of the footer here */
+      height: 25%;
+      background-color: #f5f5f5;
+    }
+
+    #pdfme {
+      background-color: #ffffff;
+    }
+
+  </style>
 </head>
 <body>
 
-<a href="javascript:demoFromHTML()" class="button">Run Code</a>
-<div id="testcase">
-  <h1>
-    We support special element handlers. Register them with jQuery-style.
-  </h1>
+<div id="pdfme" class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <table class="packertable ">
+        <thead>
+        <!--<tr>-->
+        <!--<th colspan=1>1</th>-->
+        <!--<th colspan=1>1</th>-->
+        <!--<th colspan=1>1</th>-->
+        <!--<th colspan=1>1</th>-->
+
+        <!--</tr>-->
+
+        </thead>
+        <tbody>
+        <tr class="packerrow">
+          <td colspan=1><h4>Packer Name & Initial:</h4></td>
+          <td colspan=1 class="under"></td>
+          <td colspan=1><h4>Orders Packed:</h4></td>
+
+          <td class="under" colspan=1></td>
+        </tr>
+        <tr class="packerrow">
+          <td><h4>Packer Name & Initial:</h4></td>
+          <td class="under"></td>
+          <td><h4>Orders Packed:</h4></td>
+
+          <td class="under"></td>
+        </tr>
+        <tr class="packerrow">
+          <td><h4>Packer Name & Initial:</h4></td>
+          <td class="under"></td>
+          <td><h4>Orders Packed:</h4></td>
+
+          <td class="under"></td>
+        </tr>
+        <tr class="packerrow">
+          <td colspan=1><h4></h4></td>
+          <td colspan=1 class=""></td>
+          <td colspan=1><h4>Total:</h4></td>
+
+          <td colspan=1 class="under"></td>
+        </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+  <br/>
+
+  <div class="row">
+    <div class="col-lg-8">
+
+      <div class="panel panel-default">
+        <!--<div class="panel-heading">-->
+        <!--<h3 class="panel-title">Picking Things</h3>-->
+        <!--</div>-->
+        <div class="panel-body">
+          <table id="mainTable" class="table table-bordered table-striped">
+            <thead>
+            <tr>
+              <th>INVOICE</th>
+              <th>PACKER</th>
+              <th>QTY</th>
+              <th>PRODUCT/SIZE/COLOR</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+              <td>SO81</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>SO81</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>SO81</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-lg-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">ERRORS</h3>
+        </div>
+
+        <div class="panel-body">
+          <table class="table">
+            <tr class="packerrow">
+              <td><h4>Product:</h4></td>
+              <td></td>
+            </tr>
+            <tr class="packerrow">
+              <td><h4>Quantity:</h4></td>
+              <td></td>
+            </tr>
+            <tr class="packerrow">
+              <td><h4>Both:</h4></td>
+              <td></td>
+            </tr>
+            <tr class="packerrow">
+              <td><h4>Total:</h4></td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<script>
-  function demoFromHTML() {
-    var doc = new jsPDF('p', 'in', 'letter');
+<div id="footer">
+  <div class="container">
+    <div class="row">
 
-    var source = $('#testcase').first();
-    var specialElementHandlers = {
-      '#bypassme': function(element, renderer) {
-        return true;
-      }
-    };
 
-    doc.fromHTML(
-        source, // HTML string or DOM elem ref.
-        0.5,    // x coord
-        0.5,    // y coord
-        {
-          'width': 7.5, // max width of content on PDF
-          'elementHandlers': specialElementHandlers
-        });
+      <!--<label for="picks">picks</label>-->
+      <div class="col-lg-9">
+        <label for="picks">picks</label><textarea id="picks" class="form-control"></textarea>
+      </div>
+      <div class="col-lg-3"><br/> <br/>
+        <button type="button" id="generate-pdf-btn" class="btn btn-primary">
+          Generate PDF
+        </button>
+        <button type="button" id="filltestdata" class="btn btn-default">
+          Fill test picks
+        </button>
+        <button type="button" id="popTable" class="btn btn-default">
+          Populate Table
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
-    doc.output('dataurl');
-  }
-</script>
 </body>
 </html>
