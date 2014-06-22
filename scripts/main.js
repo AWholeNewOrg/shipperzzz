@@ -20,92 +20,106 @@ Array.prototype.chunk = function(chunkSize) {
 
 require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
     $(function () {
-
         var orderCol = 3;
-        var pageSize = 10;
+        var $batchStyle = $("#batchStyle");
+
+        var getInvoiceColumn = function() {
+            return parseInt($("#invoiceCol").val());
+        };
+
+        var getPageSize = function() {
+            return  parseInt($("#sheetSize").val());
+        };
+
+        $batchStyle.change(function(){
+            var $oldStyleRow = $("#oldStyleRow");
+            var $netSuiteStyleRow = $("#netSuiteStyleRow");
+            switch(this.value) {
+                case 'oldStyle':
+                    $oldStyleRow.show();
+                    $netSuiteStyleRow.hide();
+                    break;
+                case 'netSuiteStyle':
+                    $oldStyleRow.hide();
+                    $netSuiteStyleRow.show();
+                    break;
+            }
+        });
+
+        $batchStyle.change();
+
 
         var fillPicksTable = function(picks) {
             var picks2 = [];
 
             picks.forEach(
                 function(pick) {
-                    var theString = pick.split("\t")[orderCol];
-                    if ( typeof theString != 'undefined') {
+                    if (pick.toString().indexOf("\t") != -1) {
+                        var theString = pick.toString().split("\t")[getInvoiceColumn()];
+                    }
+                    else {
+                        theString = pick
+                    }
+                    if (typeof theString != 'undefined') {
                         picks2.push(theString);
                     }
-
                 }
             );
 
             var mainBody = $('#mainTable > tbody');
             mainBody.html("");
             picks2.forEach(function(pick) {
-
-                console.log(pick);
                 mainBody.append("<tr><td>" + pick + "</td><td></td><td></td><td></td></tr>");
-
             });
         };
 
-        $('#popTable').click(function(){
-            var chunks = getChunks();
-            var picks = [];
-            console.log ("chunks is " + chunks);
-            var chunk = chunks.shift();
-            console.log("chunk is " + chunk);
+        var getNetSuitePicks = function() {
+            return $("#picks").get(0).value;
+        };
 
-            chunk.forEach(
-                function(pick) {
-                    picks.push(pick.split("\t")[orderCol]);
-                }
-            );
+        var getOldPicks = function () {
+            var ret = [];
+            var start = parseInt($("#invoiceStart").val());
+            var end = parseInt($("#invoiceEnd").val());
 
-            fillPicksTable(picks);
+            var num = start;
+            while (num <= end) {
+                ret.push(num);
+                num ++;
+            }
+            return ret;
 
-        });
-
-
-
-        $('#filltestdata').click(function(){
-            var testData =
-            "	6/16/2014	Sales Order	SO81	Ajith N	test Veinna VA 22081	USPS Priority Mail	 	 \n" +
-            "\t6/18/2014	Sales Order	SO100	Test-Lucy Jones	136 Whispering Winds Dr Gunter TX 75058	USPS First Class Mail   \n" +
-            "\t6/18/2014	Sales Order	SO101	Test-Lucy Jones	136 Whispering Winds Dr Gunter TX 75058	USPS First Class Mail   \n" +
-            "\t6/18/2014	Sales Order	SO102	Test-Lucy Jones	136 Whispering Winds Dr Gunter TX 75058	USPS First Class Mail   \n" +
-            "\t6/14/2014	Sales Order	SO75	Test-Sarah Roden	1100 S Congress Ave Denver CO 80209	USPS Priority Mail  \n" +
-            "\t6/18/2014	Sales Order	SO98	Test-Sarah Roden	1825 E 38 1/2 St, Ste 205 Austin TX 78722	USPS First Class Mail   \n";
-            $("#picks").val(testData);
-        });
-
+        };
 
         var getChunks = function() {
-            var picks = $("#picks").get(0).value;
-            picks = picks.split("\n");
+            var type = $("#batchStyle").val();
+            var picks = [];
+            switch (type) {
+                case 'oldStyle':
+                    picks = getOldPicks();
+                    break;
+                case 'netSuiteStyle':
+                    picks = getNetSuitePicks();
+                    picks = picks.split("\n");
+                    break;
+            }
 
-            return picks.chunk(pageSize);
+
+
+
+            return picks.chunk(getPageSize());
+//            return picks.chunk(10);
         };
+
 
 
         $('#generate-pdf-btn').click(function () {
             console.log("let's generate a pdf");
-
-
             var chunks = getChunks();
-
-            console.log( "chunks is " + chunks);
-
             var pdf = new jsPDF('p', 'pt', 'letter');
-
-
-
-
             var doPages = function(pages) {
-
-
-
                 var dfd = new jQuery.Deferred();
                 fillPicksTable(pages.shift());
-
                 pdf.addHTML($("#pdfme"),
                     {
                         background: '#ffffff'
@@ -124,14 +138,8 @@ require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
                         }
                     }
                 );
-
-
-
             };
-
-
             doPages(chunks);
-
         });
 
     });
