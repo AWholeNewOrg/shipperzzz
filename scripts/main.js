@@ -134,7 +134,7 @@ require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
                             pdf.addPage();
                             doPages(pages);
                         } else {
-                            pdf.save("Test.pdf");
+                            pdf.save("batch-sheets.pdf");
                         }
                     }
                 );
