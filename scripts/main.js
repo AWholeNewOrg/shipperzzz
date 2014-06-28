@@ -66,6 +66,9 @@ require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
                 }
             );
 
+            $('#batchFirst').text(picks2[0]);
+            $('#batchLast').text(picks2[picks2.length - 1]);
+
             var mainBody = $('#mainTable > tbody');
             mainBody.html("");
             picks2.forEach(function(pick) {
