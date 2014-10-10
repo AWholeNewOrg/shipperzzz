@@ -94,7 +94,7 @@ require(['jquery'], function ($) {
                 var mainBody = $('#mainTable > tbody');
                 mainBody.html("");
                 picks2.forEach(function (pick) {
-                    mainBody.append("<tr><td>" + pick + " <img class=\"barcode\"></td><td></td><td></td><td></td></tr>");
+                    mainBody.append("<tr><td>" + pick + " <div class=\"pull-right\"><img class=\"barcode pull-right\"></div></td><td></td><td></td><td></td></tr>");
                     if ($doBarcodes) {
                         $(".barcode").last().JsBarcode(String(pick), {width: 1, height: 45});
                     }
