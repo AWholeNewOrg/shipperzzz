@@ -21,13 +21,22 @@ Array.prototype.chunk = function(chunkSize) {
     );
 };
 
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 require(['jquery', 'jspdf', 'JsBarcode', 'html2canvas', 'code128'], function ($, jsPDF, JsBarcode) {
     $(function () {
+
 
 //        $("#barcode").JsBarcode("Javascript is fun!",{width:1,height:25});
 //        $("#barcode").JsBarcode("hi");
         var orderCol = 3;
         var $batchStyle = $("#batchStyle");
+
 
         var getInvoiceColumn = function() {
             return parseInt($("#invoiceCol").val());
@@ -58,6 +67,10 @@ require(['jquery', 'jspdf', 'JsBarcode', 'html2canvas', 'code128'], function ($,
         var fillPicksTable = function(picks) {
             var picks2 = [];
 
+            var $doBarcodes = $("#generateBarcodes").is(':checked');
+
+            console.log("doBarcodes = " + $doBarcodes);
+
             picks.forEach(
                 function(pick) {
                     if (pick.toString().indexOf("\t") != -1) {
@@ -79,7 +92,9 @@ require(['jquery', 'jspdf', 'JsBarcode', 'html2canvas', 'code128'], function ($,
             mainBody.html("");
             picks2.forEach(function(pick) {
                 mainBody.append("<tr><td>" + pick + " <img class=\"barcode\"></td><td></td><td></td><td></td></tr>");
-                $(".barcode").last().JsBarcode(String(pick),{width:1,height:45});
+                if ($doBarcodes) {
+                    $(".barcode").last().JsBarcode(String(pick), {width: 1, height: 45});
+                }
             });
         };
 
