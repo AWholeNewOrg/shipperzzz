@@ -16,6 +16,7 @@
   "dependencies": {
     "requirejs": "~2.1.14",
     "bootstrap": "~3.1.1",
-    "jspdf": "~1.0.150"
+    "jspdf": "~1.0.150",
+    "jsbarcode": "*"
   }
 }

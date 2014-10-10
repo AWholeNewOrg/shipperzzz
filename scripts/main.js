@@ -4,7 +4,10 @@ require.config({
         jquery: 'bower_components/jquery/dist/jquery',
         bootstrap: 'bower_components/bootstrap/dist/js/bootstrap',
         jspdf: 'bower_components/jspdf/dist/jspdf.debug',
-        html2canvas: 'bower_components/html2canvas/build/html2canvas'
+        html2canvas: 'bower_components/html2canvas/build/html2canvas',
+        JsBarcode: 'bower_components/jsbarcode/JsBarcode',
+        code39: 'bower_components/jsbarcode/CODE39',
+        code128: 'bower_components/jsbarcode/CODE128'
 
     }
 });
@@ -18,8 +21,11 @@ Array.prototype.chunk = function(chunkSize) {
     );
 };
 
-require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
+require(['jquery', 'jspdf', 'JsBarcode', 'html2canvas', 'code128'], function ($, jsPDF, JsBarcode) {
     $(function () {
+
+//        $("#barcode").JsBarcode("Javascript is fun!",{width:1,height:25});
+//        $("#barcode").JsBarcode("hi");
         var orderCol = 3;
         var $batchStyle = $("#batchStyle");
 
@@ -72,7 +78,8 @@ require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
             var mainBody = $('#mainTable > tbody');
             mainBody.html("");
             picks2.forEach(function(pick) {
-                mainBody.append("<tr><td>" + pick + "</td><td></td><td></td><td></td></tr>");
+                mainBody.append("<tr><td>" + pick + " <img class=\"barcode\"></td><td></td><td></td><td></td></tr>");
+                $(".barcode").last().JsBarcode(String(pick),{width:1,height:45});
             });
         };
 
