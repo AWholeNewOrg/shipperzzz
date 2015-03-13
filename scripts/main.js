@@ -88,6 +88,7 @@ require(['jquery'], function ($) {
                     }
                 );
 
+                $('#orderTypeDisplay').text($( "#orderType").find("option:selected" ).text());
                 $('#batchFirst').text(picks2[0]);
                 $('#batchLast').text(picks2[picks2.length - 1]);
 
@@ -141,9 +142,12 @@ require(['jquery'], function ($) {
             $('#generate-pdf-btn').click(function () {
                 console.log("let's generate a pdf");
                 var chunks = getChunks();
+                var chunkNumber = 1;
+                $("#batchTotal").text(chunks.length);
                 var pdf = new jsPDF('p', 'pt', 'letter');
                 var doPages = function (pages) {
                     var dfd = new jQuery.Deferred();
+                    $("#batchNumber").text(chunkNumber);
                     fillPicksTable(pages.shift());
                     pdf.addHTML($("#pdfme"),
                         {
@@ -157,6 +161,7 @@ require(['jquery'], function ($) {
                         function () {
                             if (pages.length > 0) {
                                 pdf.addPage();
+                                chunkNumber++;
                                 doPages(pages);
                             } else {
                                 pdf.save("batch-sheets.pdf");
