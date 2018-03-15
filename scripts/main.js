@@ -4,135 +4,174 @@ require.config({
         jquery: 'bower_components/jquery/dist/jquery',
         bootstrap: 'bower_components/bootstrap/dist/js/bootstrap',
         jspdf: 'bower_components/jspdf/dist/jspdf.debug',
-        html2canvas: 'bower_components/html2canvas/build/html2canvas'
+        html2canvas: 'bower_components/html2canvas/build/html2canvas',
+        JsBarcode: 'bower_components/jsbarcode/JsBarcode',
+        code39: 'bower_components/jsbarcode/CODE39',
+        code128: 'bower_components/jsbarcode/CODE128'
 
     }
 });
 
-Array.prototype.chunk = function(chunkSize) {
-    var array=this;
+Array.prototype.chunk = function (chunkSize) {
+    var array = this;
     return [].concat.apply([],
-        array.map(function(elem,i) {
-            return i%chunkSize ? [] : [array.slice(i,i+chunkSize)];
+        array.map(function (elem, i) {
+            return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
         })
     );
 };
 
-require(['jquery', 'jspdf', 'html2canvas'], function ($, jsPDF) {
-    $(function () {
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
 
-        var orderCol = 3;
-        var pageSize = 10;
+require(['jquery'], function ($) {
 
-        var fillPicksTable = function(picks) {
-            var picks2 = [];
 
-            picks.forEach(
-                function(pick) {
-                    var theString = pick.split("\t")[orderCol];
-                    if ( typeof theString != 'undefined') {
-                        picks2.push(theString);
-                    }
+    require(['jquery', 'jspdf', 'JsBarcode', 'html2canvas', 'code128'], function ($, jsPDF, JsBarcode) {
+        $(function () {
 
+
+//        $("#barcode").JsBarcode("Javascript is fun!",{width:1,height:25});
+//        $("#barcode").JsBarcode("hi");
+            var orderCol = 3;
+            var $batchStyle = $("#batchStyle");
+
+
+            var getInvoiceColumn = function () {
+                return parseInt($("#invoiceCol").val());
+            };
+
+            var getPageSize = function () {
+                return  parseInt($("#sheetSize").val());
+            };
+
+            $batchStyle.change(function () {
+                var $oldStyleRow = $("#oldStyleRow");
+                var $netSuiteStyleRow = $("#netSuiteStyleRow");
+                switch (this.value) {
+                    case 'oldStyle':
+                        $oldStyleRow.show();
+                        $netSuiteStyleRow.hide();
+                        break;
+                    case 'netSuiteStyle':
+                        $oldStyleRow.hide();
+                        $netSuiteStyleRow.show();
+                        break;
                 }
-            );
-
-            var mainBody = $('#mainTable > tbody');
-            mainBody.html("");
-            picks2.forEach(function(pick) {
-
-                console.log(pick);
-                mainBody.append("<tr><td>" + pick + "</td><td></td><td></td><td></td></tr>");
-
             });
-        };
 
-        $('#popTable').click(function(){
-            var chunks = getChunks();
-            var picks = [];
-            console.log ("chunks is " + chunks);
-            var chunk = chunks.shift();
-            console.log("chunk is " + chunk);
-
-            chunk.forEach(
-                function(pick) {
-                    picks.push(pick.split("\t")[orderCol]);
-                }
-            );
-
-            fillPicksTable(picks);
-
-        });
+            $batchStyle.change();
 
 
+            var fillPicksTable = function (picks) {
+                var picks2 = [];
 
-        $('#filltestdata').click(function(){
-            var testData =
-            "	6/16/2014	Sales Order	SO81	Ajith N	test Veinna VA 22081	USPS Priority Mail	 	 \n" +
-            "\t6/18/2014	Sales Order	SO100	Test-Lucy Jones	136 Whispering Winds Dr Gunter TX 75058	USPS First Class Mail   \n" +
-            "\t6/18/2014	Sales Order	SO101	Test-Lucy Jones	136 Whispering Winds Dr Gunter TX 75058	USPS First Class Mail   \n" +
-            "\t6/18/2014	Sales Order	SO102	Test-Lucy Jones	136 Whispering Winds Dr Gunter TX 75058	USPS First Class Mail   \n" +
-            "\t6/14/2014	Sales Order	SO75	Test-Sarah Roden	1100 S Congress Ave Denver CO 80209	USPS Priority Mail  \n" +
-            "\t6/18/2014	Sales Order	SO98	Test-Sarah Roden	1825 E 38 1/2 St, Ste 205 Austin TX 78722	USPS First Class Mail   \n";
-            $("#picks").val(testData);
-        });
+                var $doBarcodes = $("#generateBarcodes").is(':checked');
 
+                console.log("doBarcodes = " + $doBarcodes);
 
-        var getChunks = function() {
-            var picks = $("#picks").get(0).value;
-            picks = picks.split("\n");
-
-            return picks.chunk(pageSize);
-        };
-
-
-        $('#generate-pdf-btn').click(function () {
-            console.log("let's generate a pdf");
-
-
-            var chunks = getChunks();
-
-            console.log( "chunks is " + chunks);
-
-            var pdf = new jsPDF('p', 'pt', 'letter');
-
-
-
-
-            var doPages = function(pages) {
-
-
-
-                var dfd = new jQuery.Deferred();
-                fillPicksTable(pages.shift());
-
-                pdf.addHTML($("#pdfme"),
-                    {
-                        background: '#ffffff'
-                    },
-                    function () {
-                        dfd.resolve();
-                    });
-
-                dfd.done(
-                    function() {
-                        if (pages.length > 0) {
-                            pdf.addPage();
-                            doPages(pages);
-                        } else {
-                            pdf.save("Test.pdf");
+                picks.forEach(
+                    function (pick) {
+                        if (pick.toString().indexOf("\t") != -1) {
+                            var theString = pick.toString().split("\t")[getInvoiceColumn()];
+                        }
+                        else {
+                            theString = pick
+                        }
+                        if (typeof theString != 'undefined') {
+                            picks2.push(theString);
                         }
                     }
                 );
 
+                $('#orderTypeDisplay').text($( "#orderType").find("option:selected" ).text());
+                $('#batchFirst').text(picks2[0]);
+                $('#batchLast').text(picks2[picks2.length - 1]);
 
+                var mainBody = $('#mainTable > tbody');
+                mainBody.html("");
+                picks2.forEach(function (pick) {
+                    mainBody.append("<tr><td>" + pick + " <div class=\"pull-right\"><img class=\"barcode pull-right\"></div></td><td></td><td></td><td></td></tr>");
+                    if ($doBarcodes) {
+                        $(".barcode").last().JsBarcode(String(pick), {width: 1, height: 45});
+                    }
+                });
+            };
+
+            var getNetSuitePicks = function () {
+                return $("#picks").get(0).value;
+            };
+
+            var getOldPicks = function () {
+                var ret = [];
+                var start = parseInt($("#invoiceStart").val());
+                var end = parseInt($("#invoiceEnd").val());
+
+                var num = start;
+                while (num <= end) {
+                    ret.push(num);
+                    num++;
+                }
+                return ret;
 
             };
 
+            var getChunks = function () {
+                var type = $("#batchStyle").val();
+                var picks = [];
+                switch (type) {
+                    case 'oldStyle':
+                        picks = getOldPicks();
+                        break;
+                    case 'netSuiteStyle':
+                        picks = getNetSuitePicks();
+                        picks = picks.split("\n");
+                        break;
+                }
 
-            doPages(chunks);
+
+                return picks.chunk(getPageSize());
+//            return picks.chunk(10);
+            };
+
+
+            $('#generate-pdf-btn').click(function () {
+                console.log("let's generate a pdf");
+                var chunks = getChunks();
+                var chunkNumber = 1;
+                $("#batchTotal").text(chunks.length);
+                var pdf = new jsPDF('p', 'pt', 'letter');
+                var doPages = function (pages) {
+                    var dfd = new jQuery.Deferred();
+                    $("#batchNumber").text(chunkNumber);
+                    fillPicksTable(pages.shift());
+                    pdf.addHTML($("#pdfme"),
+                        {
+                            background: '#ffffff'
+                        },
+                        function () {
+                            dfd.resolve();
+                        });
+
+                    dfd.done(
+                        function () {
+                            if (pages.length > 0) {
+                                pdf.addPage();
+                                chunkNumber++;
+                                doPages(pages);
+                            } else {
+                                pdf.save("batch-sheets.pdf");
+                            }
+                        }
+                    );
+                };
+                doPages(chunks);
+            });
 
         });
-
     });
 });
